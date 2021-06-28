@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://galiprandi.github.io/css-toolset/css-toolset.min.css" />
+  <title>websocket-debug-server</title>
+</head>
+
+<body>
+  <h2>Send message to broadcast</h2>
+
+  <form id="form" action="">
+    <fieldset>
+      <label for="event-name">Event Name</label>
+      <input type="text" name="event-name" id="event-name" />
+      <label for="json">JSON</label>
+      <textarea name="json" id="json" placeholder="JSON body"></textarea>
+      <input type="submit" value="Enviar" />
+    </fieldset>
+  </form>
+  <h3>Messages queue</h3>
+  <ul id="messages"></ul>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const socket = io()
+
+    const messages = document.getElementById('messages')
+
+    document.addEventListener('submit', function (e) {
+      e.preventDefault()
+      const eventName = e.target['event-name'].value
+      const data = e.target['json'].value || null
+      try {
+        const json = JSON.parse(data)
+        console.log(eventName, json)
+        socket.emit(eventName, json)
+      } catch (error) {
+        alert(
+          'JSON Parse error: Check  syntax and remember use double quotes for the key and values.'
+        )
+      }
+    })
+
+    socket.onAny((eventName, payload) => {
+      const li = document.createElement('li')
+      console.log(eventName, payload)
+      li.textContent = `${eventName} ${JSON.stringify(payload)}`
+      messages.prepend(li)
+    })
+  </script>
+</body>
+
+</html>
