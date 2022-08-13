@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.17.1",
-    "socket.io": "^3.0.3"
+    "express": "^4",
+    "socket.io": "^4"
   },
   "scripts": {
     "start": "npx nodemon ./index.js"
