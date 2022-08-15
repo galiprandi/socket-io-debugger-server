@@ -13,7 +13,7 @@
       rel="stylesheet"
       href="https://galiprandi.github.io/css-toolset/css-toolset.min.css"
     />
-    <title>websocket-debug-server</title>
+    <title>WS Server</title>
     <style>
       body {
         max-width: unset;
@@ -21,7 +21,7 @@
 
       main {
         display: grid;
-        grid-template-columns: 40% 60%;
+        grid-template-columns: 30% 70%;
         gap: 2em;
         margin: 2em;
       }
@@ -49,9 +49,10 @@
         <fieldset>
           <label for="event-name">Event Name</label>
           <input type="text" name="event-name" id="event-name" />
-          <label for="json">JSON</label>
-          <textarea name="json" id="json" placeholder="JSON body"></textarea>
-          <input type="submit" value="Enviar" />
+          <label for="json">JSON payload</label>
+          <textarea name="json" id="json">{}</textarea>
+          <input type="submit" value="Enviar" name="submit" id="submit" />
+          <small class="danger" name="errorMessage" id="errorMessage"></small>
         </fieldset>
       </form>
       <div class="log">
@@ -80,12 +81,18 @@
     <script>
       const socket = io()
 
+      const btnSubmit = document.getElementById("submit")
+      const json = document.getElementById("json")
+      const errorMessage = document.getElementById("errorMessage")
       const messages = document.getElementById("messages")
+
+      document.addEventListener("keyup", prettyPrint)
 
       document.addEventListener("submit", function (e) {
         e.preventDefault()
         const eventName = e.target["event-name"].value
         const data = e.target["json"].value || null
+
         try {
           const json = JSON.parse(data)
           socket.emit(eventName, json)
@@ -98,13 +105,23 @@
 
       socket.onAny((eventName, payload) => {
         const line = document.createElement("code")
-        line.innerText = `[${new Date().toJSON()}] ${eventName}: ${JSON.stringify(
-          payload
-        )}`
+        const now = new Date().toJSON()
+        line.innerText = `[${now}] ${eventName}: ${JSON.stringify(payload)}`
         const li = document.createElement("li")
         li.appendChild(line)
         messages.prepend(li)
       })
+
+      function prettyPrint() {
+        try {
+          const ugly = json.value
+          const pretty = JSON.stringify(JSON.parse(ugly), undefined, 2)
+          json.value = pretty
+          errorMessage.innerText = ""
+        } catch (error) {
+          errorMessage.innerText = "Invalid JSON Object"
+        }
+      }
     </script>
   </body>
 </html>

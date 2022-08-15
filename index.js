@@ -19,20 +19,19 @@ const io = require("socket.io")(http, {
 
 const port = 10000
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html")
-})
+app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"))
 
 io.on("connection", (socket) => {
-  // On connection
+  // On connection send welcome message
   log.info(`[${socket.id}] 🟢 Client connected. (${io.engine.clientsCount})`)
   io.to(socket.id).emit("welcome", { message: `You are connect to server.` })
 
-  // On event received
+  // When an event is received, it is sent to the broadcast
   socket.on("broadcast", (msg) => io.local.emit("from-broadcast", msg))
 
+  // Log any event received or send
   socket.onAny((eventName, payload) => {
-    log.warn({ eventName, payload }, "🔶 Event")
+    log.info({ eventName, payload }, "🔶 Event")
     io.local.emit(eventName, payload)
   })
 
