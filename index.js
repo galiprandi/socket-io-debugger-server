@@ -1,45 +1,48 @@
-const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http,
-  {
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"]
-    }
-  })
+const pino = require("pino")
+const log = pino({
+  transport: {
+    target: "pino-pretty",
+    options: {
+      colorize: true,
+    },
+  },
+})
 
-const port = 10000;
+const app = require("express")()
+const http = require("http").Server(app)
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+})
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
+const port = 10000
 
-io.on('connection', (socket) => {
-  // On connection
-  console.log(`[${socket.id}] 🔵 Client connected. (${io.engine.clientsCount})`)
-  io.to(socket.id).emit('welcome', { message: `You are connect to server.` })
-  // io.to(socket.id).emit('socket-new-incoming-notification', { id: Date.now(), priority: 'normal', type: 'alert', message: 'Notificación automática' })
+app.get("/", (req, res) => res.sendFile(__dirname + "/index.html"))
 
+io.on("connection", (socket) => {
+  // On connection send welcome message
+  log.info(`[${socket.id}] 🟢 Client connected. (${io.engine.clientsCount})`)
+  io.to(socket.id).emit("welcome", { message: `You are connect to server.` })
 
-  // On event received
-  socket.on('broadcast', msg => {
-    io.local.emit('from-broadcast', msg)
-  })
+  // When an event is received, it is sent to the broadcast
+  socket.on("broadcast", (msg) => io.local.emit("from-broadcast", msg))
 
+  // Log any event received or send
   socket.onAny((eventName, payload) => {
-    console.log(`[${socket.id}] ⚪ Event "${eventName}" payload: ${payload}`)
+    log.info({ eventName, payload }, "🔶 Event")
     io.local.emit(eventName, payload)
   })
 
   // On client disconnect
-  socket.on('disconnect', () =>
-    console.log(`[${socket.id}] 🔴 Client disconnected. (${io.engine.clientsCount})`)
+  socket.on("disconnect", () =>
+    log.error(
+      `[${socket.id}] 🔴 Client disconnected. (${io.engine.clientsCount})`
+    )
   )
-});
-
-
-
+})
 
 http.listen(port, () => {
-  console.log(`Socket.IO server running at http://localhost:${port}/`);
-});
+  log.warn(`🚀 Server running on http://localhost:${port}/`)
+})
