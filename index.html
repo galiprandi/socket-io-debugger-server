@@ -1,94 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="https://socket.io/images/favicon.png" type="image/x-icon" />
-  <link rel="stylesheet" href="https://galiprandi.github.io/css-toolset/css-toolset.min.css" />
-  <title>websocket-debug-server</title>
-  <style>
-    body {
-      max-width: unset;
-    }
-
-    main {
-      display: grid;
-      grid-template-columns: 40% 60%;
-      gap: 2em;
-      margin: 2em;
-    }
-
-    ul#messages {
-      margin: 0;
-      padding: 1em;
-      background-color: #3a2b2b;
-      color: white;
-      border-radius: 4px;
-      min-height: 37ch;
-      font-size: 15px;
-    }
-
-    ul#messages>li {
-      list-style: none;
-    }
-  </style>
-</head>
-
-<body>
-  <main>
-    <form id="form" action="">
-      <h3>Send message to broadcast</h3>
-      <fieldset>
-        <label for="event-name">Event Name</label>
-        <input type="text" name="event-name" id="event-name" />
-        <label for="json">JSON</label>
-        <textarea name="json" id="json" placeholder="JSON body"></textarea>
-        <input type="submit" value="Enviar" />
-      </fieldset>
-    </form>
-    <div class="log">
-      <h3>Messages queue</h3>
-      <ul id="messages"></ul>
-    </div>
-  </main>
-  <p>
-    Power by
-    <a href="https://galiprandi.github.io/me/" target="_blank" rel="noopener noreferrer">Germán Aliprandi</a>
-    | Contribute on
-    <a href="https://github.com/galiprandi/socket-io-debugger-server" target="_blank"
-      rel="noopener noreferrer">Github</a>
-  </p>
-  <script src="/socket.io/socket.io.js"></script>
-
-  <script>
-    const socket = io()
-
-    const messages = document.getElementById('messages')
-
-    document.addEventListener('submit', function (e) {
-      e.preventDefault()
-      const eventName = e.target['event-name'].value
-      const data = e.target['json'].value || null
-      try {
-        const json = JSON.parse(data)
-        socket.emit(eventName, json)
-      } catch (error) {
-        alert(
-          'JSON Parse error: Check  syntax and remember use double quotes for the key and values.'
-        )
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="https://socket.io/images/favicon.png"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="https://galiprandi.github.io/css-toolset/css-toolset.min.css"
+    />
+    <title>websocket-debug-server</title>
+    <style>
+      body {
+        max-width: unset;
       }
-    })
 
-    socket.onAny((eventName, payload) => {
-      const li = document.createElement('li')
-      li.innerHTML = `[${new Date().toJSON()}] <b>"${eventName}"</b> ${JSON.stringify(
-        payload
-      )}`
-      messages.prepend(li)
-    })
-  </script>
-</body>
+      main {
+        display: grid;
+        grid-template-columns: 40% 60%;
+        gap: 2em;
+        margin: 2em;
+      }
 
+      ul#messages {
+        margin: 0;
+        padding: 1em;
+        background-color: #3a2b2b;
+        color: white;
+        border-radius: 4px;
+        min-height: 37ch;
+        font-size: 15px;
+      }
+
+      ul#messages > li {
+        list-style: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <form id="form" action="">
+        <h3>Send message to broadcast</h3>
+        <fieldset>
+          <label for="event-name">Event Name</label>
+          <input type="text" name="event-name" id="event-name" />
+          <label for="json">JSON</label>
+          <textarea name="json" id="json" placeholder="JSON body"></textarea>
+          <input type="submit" value="Enviar" />
+        </fieldset>
+      </form>
+      <div class="log">
+        <h3>Messages queue</h3>
+        <ul id="messages"></ul>
+      </div>
+    </main>
+    <p>
+      Power by
+      <a
+        href="https://galiprandi.github.io/me/"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Germán Aliprandi</a
+      >
+      | Contribute on
+      <a
+        href="https://github.com/galiprandi/socket-io-debugger-server"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Github</a
+      >
+    </p>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      const socket = io()
+
+      const messages = document.getElementById("messages")
+
+      document.addEventListener("submit", function (e) {
+        e.preventDefault()
+        const eventName = e.target["event-name"].value
+        const data = e.target["json"].value || null
+        try {
+          const json = JSON.parse(data)
+          socket.emit(eventName, json)
+        } catch (error) {
+          alert(
+            "JSON Parse error: Check  syntax and remember use double quotes for the key and values."
+          )
+        }
+      })
+
+      socket.onAny((eventName, payload) => {
+        const li = document.createElement("li")
+        li.innerHTML = `[${new Date().toJSON()}] <b>"${eventName}"</b> ${JSON.stringify(
+          payload
+        )}`
+        messages.prepend(li)
+      })
+    </script>
+  </body>
 </html>
